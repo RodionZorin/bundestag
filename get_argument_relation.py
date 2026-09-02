@@ -7,7 +7,10 @@ PATH_TEST = "annotations/X_test.json"
 
 def main():
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="relation_types: supports, adds, attacks, undercuts;" \
+        "use example: python3 get_argument_relation.py premise attacks claim my.json"
+    )
 
     parser.add_argument("from_type")
     parser.add_argument("relation_type")

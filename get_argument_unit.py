@@ -6,9 +6,14 @@ PATH_TEST = "annotations/X_test.json"
 
 def main():
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+         description="Type obligatory semantic type (speaker:policy, opponent:actions, etc.) and get all spans with this type." \
+         "You can restrict your search: add optional argument type (e.g. claim) and get only claim + speaker:policy (excluding premise + speaker:policy)"
+         "Use example: python3 get_argument_unit.py speaker:policy my.json"
+         "Use example: python3 get_argument_unit.py -argument_type claim speaker:policy my.json"
+    )
 
-    parser.add_argument("argument_type")
+    parser.add_argument("-argument_type")
     parser.add_argument("semantic_type")
     parser.add_argument("output_file")
 
@@ -65,20 +70,21 @@ def main():
                         spans[region_id]["semantic_type"] = choices[0]
 
         units.extend(spans.values())
-
+    #import ipdb; ipdb.set_trace()
     #select required units
 
-    selected = [
-        unit for unit in units
-        if (
-            args.argument_type != "None"
-            and unit["argument_type"] == args.argument_type
-        )
-        or (
-            args.semantic_type != "None"
-            and unit["semantic_type"] == args.semantic_type
-        )
+    if args.argument_type:
+
+        selected = [
+            unit for unit in units
+            if (unit["argument_type"] == args.argument_type and unit["semantic_type"] == args.semantic_type)
     ]
+
+    else:
+         selected = [
+              unit for unit in units
+              if unit["semantic_type"] == args.semantic_type
+         ]
 
     #save the file
 
