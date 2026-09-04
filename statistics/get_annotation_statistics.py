@@ -1,8 +1,8 @@
 import json
 from collections import Counter
 
-PATH_TRAIN = "annotations/X_train.json"
-PATH_TEST = "annotations/X_test.json"
+PATH_TRAIN = "../annotations/X_train.json"
+PATH_TEST = "../annotations/X_test.json"
 
 with open(PATH_TRAIN, "r", encoding="utf-8") as f:
     data_train = json.load(f)
@@ -30,7 +30,7 @@ for task in data:
 
             # semantic categories
             elif result["type"] == "choices":
-                if result["from_name"] in ["claim_type", "premise_type"]:
+                if result["from_name"] in ["claim_type", "premise_type", "other_type"]:
                     category = result["value"]["choices"][0]
                     categories[category] += 1
 
