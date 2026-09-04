@@ -1,0 +1,27 @@
+prompt: |
+  Imagine you are a human annotator.
+  
+  You are given the following text {{text}}.
+  
+  Your task is to read the text and to annotate each span with the following propositional categories:
+  speaker:mind
+  speaker:policy
+  speaker:actions
+  speaker:experience
+  opponent:policy
+  opponent:actions
+  world:state
+  speaker:view -> opponent:mind
+  speaker:view -> opponent:policy
+  speaker:view -> oppenent:actions
+  speaker:view -> opponent:motives
+  speaker:view -> world:state
+  expert
+  study
+  speaker:rhetoric
+
+  In most cases, a span equals to a sentence, but here are exact spans you need to annotate for the given text:
+  {{spans | join("\n")}}
+  
+  As an answer, provide ONLY a list of labels (type string) from the first to the last span.
+  No comments, no lyrics, just one list.
