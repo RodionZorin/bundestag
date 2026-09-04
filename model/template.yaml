@@ -154,10 +154,17 @@ prompt: |
 
   OUTPUT
 
-  Return ONLY one Python-style list of label strings, in exactly the same
-  order as the spans above.
+  Return ONLY a valid JSON array of strings, in exactly the same order
+  as the spans above.
 
+  Example format:
+  ["label1", "label2", "label3"]
+
+  Use double quotation marks as required by JSON.
   The number of labels MUST equal the number of spans.
 
   Use ONLY labels from the inventory above.
-  Do not add explanations, comments, numbering, markdown, or any other text.
+  Do not add explanations, comments, numbering, markdown, code fences,
+  or any other text.
+
+  
