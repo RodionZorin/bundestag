@@ -30,6 +30,8 @@ spans = {}
 #take each paragraph and form a prompt
 for paragraph in data:
     paragraph_id = paragraph["id"]
+    if paragraph_id == 125:
+        break
     paragraphs.append(paragraph_id)
     annotation = paragraph["annotations"]
     paragraph_text = paragraph["data"]["text"]
@@ -57,7 +59,7 @@ for paragraph in data:
     from openai import OpenAI
     client = OpenAI()
     response = client.responses.create(
-       model="gpt-5.6-terra",
+       model="gpt-5.6-luna",
        input=my_prompt,
     )
     model_response = response.output_text
@@ -86,15 +88,16 @@ attempts = 0
 count = 0
 errors = {}
 for paragraph_index in paragraphs:
-    zipped = list(enumerate (zip (predictions[paragraph_index], gold_labels[paragraph_index]) ) )
-    paragraph_errors = {}
-    for pair_index, pair in zipped:
-        attempts += 1
-        if pair[0] == pair[1]: #if prediction == gold_label
-            count += 1
-        else:
-            paragraph_errors[spans[paragraph_index][pair_index]] = f"prediction: {pair[0]}; gold_label: {pair[1]}"
-    errors[f"paragraph {paragraph_index}"] = paragraph_errors
+    if paragraph_index in list(predictions.keys()):
+        zipped = list(enumerate (zip (predictions[paragraph_index], gold_labels[paragraph_index]) ) )
+        paragraph_errors = {}
+        for pair_index, pair in zipped:
+            attempts += 1
+            if pair[0] == pair[1]: #if prediction == gold_label
+                count += 1
+            else:
+                paragraph_errors[spans[paragraph_index][pair_index]] = f"prediction: {pair[0]}; gold_label: {pair[1]}"
+        errors[f"paragraph {paragraph_index}"] = paragraph_errors
 
 try:
     accuracy = count*100/attempts
