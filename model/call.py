@@ -25,7 +25,7 @@ with open(PATH, "r", encoding="utf-8") as f:
 gold_labels = {}
 predictions = {}
 paragraphs = []
-spans = []
+spans = {}
 
 #take each paragraph and form a prompt
 for paragraph in data:
@@ -44,13 +44,12 @@ for paragraph in data:
             spans_paragraph.append(span_text)
             span_gold = span.get("value").get("choices")[0]
             gold_labels_paragraph.append(span_gold)
-            
-    paragraph_annotated = {paragraph_id: spans_paragraph}
+    spans[paragraph_id] = spans_paragraph
 
     #create context to fill in the gaps of the template
     context = {}
     context["text"] = paragraph_text
-    context["spans"] = paragraph_annotated[paragraph_id]
+    context["spans"] = spans[paragraph_id]
 
     #fill in the gaps in the template
     my_prompt = Template(template["prompt"]).render(**context)
@@ -79,23 +78,26 @@ for paragraph in data:
 
     print("The model generated the correct number of predictions in the correct format")
 
-    predictions = {paragraph_id: model_response}
-    gold_labels = {paragraph_id: gold_labels_paragraph}
+    predictions[paragraph_id] = model_response
+    gold_labels[paragraph_id] = gold_labels_paragraph
 
 #calculate accuracy
+attempts = 0
 count = 0
+errors = {}
 for paragraph_index in paragraphs:
     zipped = list(enumerate (zip (predictions[paragraph_index], gold_labels[paragraph_index]) ) )
     paragraph_errors = {}
     for pair_index, pair in zipped:
+        attempts += 1
         if pair[0] == pair[1]: #if prediction == gold_label
             count += 1
         else:
-            paragraph_errors[paragraph_annotated[paragraph_index][pair_index]] = f"prediction: {pair[0]}; gold_label: {pair[1]}"
-    errors = {f"paragraph {paragraph_index}": paragraph_errors}
+            paragraph_errors[spans[paragraph_index][pair_index]] = f"prediction: {pair[0]}; gold_label: {pair[1]}"
+    errors[f"paragraph {paragraph_index}"] = paragraph_errors
 
 try:
-    accuracy = count*100/len(zipped)
+    accuracy = count*100/attempts
     print("Accuracy: ", accuracy)
 except ZeroDivisionError:
     print("No correct answers by the model")
