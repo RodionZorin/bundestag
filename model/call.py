@@ -47,6 +47,8 @@ for paragraph in data:
     )
     model_response = response.output_text
 
+    print("paragraph id: ", paragraph_id)
+
     if len(model_response) != len(spans):
         print("Oops! The model failed to generate correct number of predictions")
         continue
@@ -55,10 +57,10 @@ for paragraph in data:
         print("Oops! The model failed to produce a list of predictions")
         continue
 
+    print("The model generated the correct number of predictions in the correct format")
+
     predictions.extend(model_response)
     gold_labels.extend(gold_labels_paragraph)
-    print(len(predictions))
-    print(len(gold_labels))    
 
 #calculate accuracy
 zipped = list(zip(predictions, gold_labels))
@@ -73,4 +75,3 @@ except ZeroDivisionError:
     print("No correct answers by the model")
 
 print("Baseline Accuracy: 21.61")
-import ipdb; ipdb.set_trace()
