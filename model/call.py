@@ -11,27 +11,25 @@ with open (TEMPLATE, "r", encoding="utf-8") as f:
 with open(PATH, "r", encoding="utf-8") as f:
     data = json.load(f)
 
-golden_labels = []
+gold_labels = []
 predictions = []
 
 #take each paragraph and form a prompt
 for paragraph in data:
     paragraph_id = paragraph["id"]
-    #if paragraph_id != 124:
-        #continue
     annotation = paragraph["annotations"]
     paragraph_text = paragraph["data"]["text"]
 
     #collect spans of the text in a list
     spans = []
-    golden_labels_paragraph = []
+    gold_labels_paragraph = []
     for span in annotation[0]["result"]:
         from_name = span.get('from_name')
         if from_name in ["premise_type", "claim_type", "other_type"]:
             span_text = span.get("value").get("text")
             spans.append(span_text)
-            span_golden = span.get("value").get("choices")[0]
-            golden_labels_paragraph.append(span_golden)
+            span_gold = span.get("value").get("choices")[0]
+            gold_labels_paragraph.append(span_gold)
 
     #create context to fill in the gaps of the template
     context = {}
@@ -40,7 +38,6 @@ for paragraph in data:
 
     #fill in the gaps in the template
     my_prompt = Template(template["prompt"]).render(**context)
-    #import ipdb; ipdb.set_trace()
 
     from openai import OpenAI
     client = OpenAI()
@@ -50,10 +47,6 @@ for paragraph in data:
     )
     model_response = response.output_text
 
-    if type(model_response) == str:
-        model_response = json.loads(model_response)
-
-    #import ipdb; ipdb.set_trace()
     if len(model_response) != len(spans):
         print("Oops! The model failed to generate correct number of predictions")
         continue
@@ -63,19 +56,15 @@ for paragraph in data:
         continue
 
     predictions.extend(model_response)
-    golden_labels.extend(golden_labels_paragraph)
+    gold_labels.extend(gold_labels_paragraph)
     print(len(predictions))
-    print(len(golden_labels))
-    import ipdb; ipdb.set_trace()
-    if paragraph_id == 130:
-        break
-    
+    print(len(gold_labels))    
 
-#after the foor loop
-zipped = list(zip(predictions, golden_labels))
+#calculate accuracy
+zipped = list(zip(predictions, gold_labels))
 count = 0
-for prediction, golden_label in zipped:
-    if prediction == golden_label:
+for prediction, gold_label in zipped:
+    if prediction == gold_label:
         count += 1
 try:
     accuracy = count*100/len(zipped)
