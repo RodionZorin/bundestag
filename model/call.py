@@ -1,9 +1,20 @@
 import json
 import yaml
 from jinja2 import Template
+import argparse
+import datetime as dt
 
 PATH = "../annotations/X_test.json"
 TEMPLATE = "./template.yaml"
+
+parser = argparse.ArgumentParser(
+    description="Add your output file;" \
+    "Use example: python3 call.py my_test.json"
+)
+
+parser.add_argument("output_file")
+
+args = parser.parse_args()
 
 with open (TEMPLATE, "r", encoding="utf-8") as f:
     template = yaml.safe_load(f)
@@ -11,30 +22,35 @@ with open (TEMPLATE, "r", encoding="utf-8") as f:
 with open(PATH, "r", encoding="utf-8") as f:
     data = json.load(f)
 
-gold_labels = []
-predictions = []
+gold_labels = {}
+predictions = {}
+paragraphs = []
+spans = []
 
 #take each paragraph and form a prompt
 for paragraph in data:
     paragraph_id = paragraph["id"]
+    paragraphs.append(paragraph_id)
     annotation = paragraph["annotations"]
     paragraph_text = paragraph["data"]["text"]
 
     #collect spans of the text in a list
-    spans = []
+    spans_paragraph = []
     gold_labels_paragraph = []
     for span in annotation[0]["result"]:
         from_name = span.get('from_name')
         if from_name in ["premise_type", "claim_type", "other_type"]:
             span_text = span.get("value").get("text")
-            spans.append(span_text)
+            spans_paragraph.append(span_text)
             span_gold = span.get("value").get("choices")[0]
             gold_labels_paragraph.append(span_gold)
+            
+    paragraph_annotated = {paragraph_id: spans_paragraph}
 
     #create context to fill in the gaps of the template
     context = {}
     context["text"] = paragraph_text
-    context["spans"] = spans
+    context["spans"] = paragraph_annotated[paragraph_id]
 
     #fill in the gaps in the template
     my_prompt = Template(template["prompt"]).render(**context)
@@ -42,36 +58,67 @@ for paragraph in data:
     from openai import OpenAI
     client = OpenAI()
     response = client.responses.create(
-       model="gpt-5.6-luna",
+       model="gpt-5.6-terra",
        input=my_prompt,
     )
     model_response = response.output_text
 
     print("paragraph id: ", paragraph_id)
 
-    if len(model_response) != len(spans):
+    #make necessary checks of the correctness of the model answer
+    if type(model_response) == str:
+        model_response = json.loads(model_response)
+
+    if len(model_response) != len(spans_paragraph):
         print("Oops! The model failed to generate correct number of predictions")
         continue
 
-    if type(model_response) != type(spans):
+    if type(model_response) != type(spans_paragraph):
         print("Oops! The model failed to produce a list of predictions")
         continue
 
     print("The model generated the correct number of predictions in the correct format")
 
-    predictions.extend(model_response)
-    gold_labels.extend(gold_labels_paragraph)
+    predictions = {paragraph_id: model_response}
+    gold_labels = {paragraph_id: gold_labels_paragraph}
 
 #calculate accuracy
-zipped = list(zip(predictions, gold_labels))
 count = 0
-for prediction, gold_label in zipped:
-    if prediction == gold_label:
-        count += 1
+for paragraph_index in paragraphs:
+    zipped = list(enumerate (zip (predictions[paragraph_index], gold_labels[paragraph_index]) ) )
+    paragraph_errors = {}
+    for pair_index, pair in zipped:
+        if pair[0] == pair[1]: #if prediction == gold_label
+            count += 1
+        else:
+            paragraph_errors[paragraph_annotated[paragraph_index][pair_index]] = f"prediction: {pair[0]}; gold_label: {pair[1]}"
+    errors = {f"paragraph {paragraph_index}": paragraph_errors}
+
 try:
     accuracy = count*100/len(zipped)
     print("Accuracy: ", accuracy)
 except ZeroDivisionError:
     print("No correct answers by the model")
+    accuracy = 0.0
 
 print("Baseline Accuracy: 21.61")
+
+#output format to write down in json
+date = str(dt.datetime.now())
+output = {
+    "datetime": date,
+    "paragraphs": paragraphs,
+    "accuracy": accuracy,
+    "errors": errors
+}
+
+# create the output file of the experiment
+with open(args.output_file, "w", encoding="utf-8") as f:
+    json.dump(
+        output,
+        f,
+        ensure_ascii=False,
+        indent=2
+    )
+
+print(f"Saved to: {args.output_file}")
