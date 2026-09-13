@@ -26,12 +26,13 @@ gold_labels = {}
 predictions = {}
 paragraphs = []
 spans = {}
+failed_paragpraphs = 0
 
 #take each paragraph and form a prompt
 for paragraph in data:
     paragraph_id = paragraph["id"]
-    if paragraph_id == 125:
-        break
+    #if paragraph_id == 124:
+     #   break
     paragraphs.append(paragraph_id)
     annotation = paragraph["annotations"]
     paragraph_text = paragraph["data"]["text"]
@@ -59,7 +60,7 @@ for paragraph in data:
     from openai import OpenAI
     client = OpenAI()
     response = client.responses.create(
-       model="gpt-5.6-luna",
+       model="gpt-5.6-terra",
        input=my_prompt,
     )
     model_response = response.output_text
@@ -72,10 +73,12 @@ for paragraph in data:
 
     if len(model_response) != len(spans_paragraph):
         print("Oops! The model failed to generate correct number of predictions")
+        failed_paragpraphs += 1
         continue
 
     if type(model_response) != type(spans_paragraph):
         print("Oops! The model failed to produce a list of predictions")
+        failed_paragpraphs += 1
         continue
 
     print("The model generated the correct number of predictions in the correct format")
@@ -114,6 +117,10 @@ output = {
     "datetime": date,
     "paragraphs": paragraphs,
     "accuracy": accuracy,
+    "number of failed paragraphs": failed_paragpraphs,
+    "number of spans": attempts,
+    "number of errors": attempts - count,
+    "number of successes": count,
     "errors": errors
 }
 
@@ -127,3 +134,4 @@ with open(args.output_file, "w", encoding="utf-8") as f:
     )
 
 print(f"Saved to: {args.output_file}")
+import ipdb; ipdb.set_trace()
