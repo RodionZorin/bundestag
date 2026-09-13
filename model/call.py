@@ -92,6 +92,34 @@ def check_model_response(model_response):
     print("The model generated the correct number of predictions in the correct format")
     return True
 
+def calculate_accuracy(paragraphs, predictions, gold_labels):
+    """
+    Calculate accuracy, collect attempts and successes, and collect errors
+    """
+    attempts = 0
+    count = 0 #correct model predictions 
+    errors = {}
+    for paragraph_index in paragraphs:
+        if paragraph_index in list(predictions.keys()):
+            zipped = list(enumerate (zip (predictions[paragraph_index], gold_labels[paragraph_index]) ) )
+            paragraph_errors = {}
+            for pair_index, pair in zipped:
+                attempts += 1
+                if pair[0] == pair[1]: #if prediction == gold_label
+                    count += 1
+                else:
+                    paragraph_errors[spans[paragraph_index][pair_index]] = f"prediction: {pair[0]}; gold_label: {pair[1]}"
+            errors[f"paragraph {paragraph_index}"] = paragraph_errors
+
+    try:
+        accuracy = count*100/attempts
+        print("Accuracy: ", accuracy)
+    except ZeroDivisionError:
+        print("No correct answers by the model")
+        accuracy = 0.0
+
+    return accuracy, attempts, count, errors
+
 #take each paragraph
 for paragraph in data:
     paragraph_id = paragraph["id"]
@@ -125,29 +153,9 @@ for paragraph in data:
         #this also means that failed paragraphs do not influence accuracy, but they are yet introduced in the final report of the experiment 
 
 #calculate accuracy
-attempts = 0
-count = 0
-errors = {}
-for paragraph_index in paragraphs:
-    if paragraph_index in list(predictions.keys()):
-        zipped = list(enumerate (zip (predictions[paragraph_index], gold_labels[paragraph_index]) ) )
-        paragraph_errors = {}
-        for pair_index, pair in zipped:
-            attempts += 1
-            if pair[0] == pair[1]: #if prediction == gold_label
-                count += 1
-            else:
-                paragraph_errors[spans[paragraph_index][pair_index]] = f"prediction: {pair[0]}; gold_label: {pair[1]}"
-        errors[f"paragraph {paragraph_index}"] = paragraph_errors
+accuracy, attempts, count, errors = calculate_accuracy(paragraphs, predictions, gold_labels)
 
-try:
-    accuracy = count*100/attempts
-    print("Accuracy: ", accuracy)
-except ZeroDivisionError:
-    print("No correct answers by the model")
-    accuracy = 0.0
-
-print("Baseline Accuracy: 21.61")
+print("Baseline Accuracy: 21.61") #the percentage of the most frequent label in the analyzed dataset
 
 #output format to write down in json
 date = str(dt.datetime.now())
@@ -172,4 +180,3 @@ with open(args.output_file, "w", encoding="utf-8") as f:
     )
 
 print(f"Saved to: {args.output_file}")
-import ipdb; ipdb.set_trace()
