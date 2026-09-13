@@ -23,11 +23,11 @@ with open(PATH, "r", encoding="utf-8") as f:
     data = json.load(f)
 
 #add essential collections
-gold_labels = {} 
-predictions = {} 
-paragraphs = [] 
-spans = {}  
-failed_paragpraphs = 0 
+gold_labels = {} #gold label of the each span of the each paragraph; used in the end to count accuracy
+predictions = {} #predicted label of the each span of the each paragraph; used in the end to count accuracy
+paragraphs = [] #ids of the analyzed paragraphs; used as info in the output file
+spans = {} #contains each paragraph with all its spans 
+failed_paragpraphs = 0 #counts the cases when the model fails to generate the correct number of predictions/generate the answer in the correct format
 
 def get_paragraph_spans_and_labels(annotation):
     """
