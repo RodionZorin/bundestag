@@ -53,6 +53,13 @@ def create_context(paragraph_text, paragraph_spans):
     context["spans"] = paragraph_spans
     return context
 
+def create_prompt(context):
+    """
+    Fill in the gaps of the template.yaml with the info from the context
+    """
+    prompt = Template(template["prompt"]).render(**context)
+    return prompt
+
 #take each paragraph
 for paragraph in data:
     paragraph_id = paragraph["id"]
@@ -69,7 +76,7 @@ for paragraph in data:
     context = create_context(paragraph_text, paragraph_spans)
 
     #fill in the gaps in the template
-    my_prompt = Template(template["prompt"]).render(**context)
+    my_prompt = create_prompt(context)
 
     from openai import OpenAI
     client = OpenAI()
