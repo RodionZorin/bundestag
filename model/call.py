@@ -3,6 +3,7 @@ import yaml
 from jinja2 import Template
 import argparse
 import datetime as dt
+from openai import OpenAI
 
 PATH = "../annotations/X_test.json"
 TEMPLATE = "./template.yaml"
@@ -60,6 +61,17 @@ def create_prompt(context):
     prompt = Template(template["prompt"]).render(**context)
     return prompt
 
+def call_ai(prompt):
+    """
+    Call ai with the prompt
+    """
+    response = client.responses.create(
+        model="gpt-5.6-terra",
+        input=my_prompt,
+    )
+    model_response = response.output_text
+    return model_response
+
 #take each paragraph
 for paragraph in data:
     paragraph_id = paragraph["id"]
@@ -78,14 +90,10 @@ for paragraph in data:
     #fill in the gaps in the template
     my_prompt = create_prompt(context)
 
-    from openai import OpenAI
+    #call an OpenAI model
     client = OpenAI()
-    response = client.responses.create(
-       model="gpt-5.6-terra",
-       input=my_prompt,
-    )
-    model_response = response.output_text
-
+    model_response = call_ai(my_prompt)
+    
     print("paragraph id: ", paragraph_id)
 
     #make necessary checks of the correctness of the model answer
