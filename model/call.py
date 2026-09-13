@@ -44,6 +44,15 @@ def get_paragraph_spans_and_labels(annotation):
             paragraph_gold_labels.append(span_gold)
     return paragraph_spans, paragraph_gold_labels
 
+def create_context(paragraph_text, paragraph_spans):
+    """
+    Create a context to fill in the gaps of the template
+    """
+    context = {}
+    context["text"] = paragraph_text
+    context["spans"] = paragraph_spans
+    return context
+
 #take each paragraph
 for paragraph in data:
     paragraph_id = paragraph["id"]
@@ -54,11 +63,10 @@ for paragraph in data:
     #collect spans of the paragraph and gold labels of the each span
     paragraph_spans, paragraph_gold_labels = get_paragraph_spans_and_labels(annotation)
     spans[paragraph_id] = paragraph_spans
-
-    #create context to fill in the gaps of the template
-    context = {}
-    context["text"] = paragraph_text
-    context["spans"] = spans[paragraph_id]
+    gold_labels[paragraph_id] = paragraph_gold_labels
+    
+    #create a context to fill in the gaps of the template
+    context = create_context(paragraph_text, paragraph_spans)
 
     #fill in the gaps in the template
     my_prompt = Template(template["prompt"]).render(**context)
@@ -90,7 +98,6 @@ for paragraph in data:
     print("The model generated the correct number of predictions in the correct format")
 
     predictions[paragraph_id] = model_response
-    
 
 #calculate accuracy
 attempts = 0
