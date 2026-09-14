@@ -66,7 +66,7 @@ def call_ai(prompt):
     Call ai with the prompt
     """
     response = client.responses.create(
-        model="gpt-5.6-terra",
+        model="gpt-5.6-luna",
         input=my_prompt,
     )
     model_response = response.output_text
@@ -90,7 +90,7 @@ def check_model_response(model_response):
         return False
 
     print("The model generated the correct number of predictions in the correct format")
-    return True
+    return model_response
 
 def calculate_accuracy(paragraphs, predictions, gold_labels):
     """
@@ -145,7 +145,8 @@ for paragraph in data:
     print("paragraph id: ", paragraph_id)
 
     #make necessary checks of the correctness of the model response
-    if check_model_response(model_response):
+    model_response = check_model_response(model_response)
+    if model_response:
         predictions[paragraph_id] = model_response #if the response passes the checks, add it to the model predictions
     else:
         del gold_labels[paragraph_id] #if not, do not add predictions and delete also the corresponding gold labels added before
