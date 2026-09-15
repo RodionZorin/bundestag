@@ -69,8 +69,7 @@ def call_ai(prompt):
         model="gpt-5.6-luna",
         input=my_prompt,
     )
-    model_response = response.output_text
-    return model_response
+    return response
 
 def check_model_response(model_response):
     """
@@ -138,7 +137,9 @@ for paragraph in data:
 
     #call an OpenAI model
     client = OpenAI()
-    model_response = call_ai(my_prompt)
+    response = call_ai(my_prompt)
+    model = response.model
+    model_response = response.output_text
     
     print("paragraph id: ", paragraph_id)
 
@@ -161,6 +162,7 @@ print("Baseline Accuracy: 21.61") #the percentage of the most frequent label in 
 date = str(dt.datetime.now())
 output = {
     "datetime": date,
+    "model": model,
     "paragraphs": paragraphs,
     "accuracy": accuracy,
     "number of failed paragraphs": failed_paragpraphs,
