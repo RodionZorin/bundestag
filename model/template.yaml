@@ -1,27 +1,170 @@
 prompt: |
-  Imagine you are a human annotator.
-  
-  You are given the following text {{text}}.
-  
-  Your task is to read the text and to annotate each span with the following propositional categories:
-  speaker:mind
-  speaker:policy
-  speaker:actions
-  speaker:experience
-  opponent:policy
-  opponent:actions
-  world:state
-  speaker:view -> opponent:mind
-  speaker:view -> opponent:policy
-  speaker:view -> oppenent:actions
-  speaker:view -> opponent:motives
-  speaker:view -> world:state
-  expert
-  study
-  speaker:rhetoric
 
-  In most cases, a span equals to a sentence, but here are exact spans you need to annotate for the given text:
+  Imagine you are a human annotator.
+
+  You are given the following political text:
+
+  {{text}}
+
+  Your task is to read the whole text and annotate each provided span with
+  exactly one semantic category from the following inventory.
+
+  CATEGORY DEFINITIONS
+
+  speaker:mind
+  The Speaker's own mental space: beliefs, opinions, judgements about
+  concepts or phenomena, general causal/explanatory interpretations,
+  understanding, or emotions. The Speaker's own judgements are still
+  speaker:mind, not speaker:view.
+
+  speaker:policy
+  The Speaker's political course or position: its content, goals,
+  principles, desired or prescribed measures, proposals, demands,
+  support, rejection, or commitment.
+
+  speaker:actions
+  Concrete, event-like actions performed by the Speaker, including
+  institutional, parliamentary, and communicative acts.
+
+  speaker:experience
+  Statements grounded in the Speaker's personal experience,
+  observation, or memory.
+
+  opponent:policy
+  The Opponent's political course or position, represented without
+  evaluation by the Speaker.
+
+  opponent:actions
+  Concrete, event-like actions performed by the Opponent, represented
+  without evaluation by the Speaker.
+
+  world:state
+  States, events, properties, quantities, or relations in the external
+  world represented without the Speaker's evaluation or interpretation.
+  They can in principle be verified against an existing or past
+  situation or data.
+
+  speaker:view -> opponent:mind
+  The Speaker's interpretation or evaluation of what the Opponent
+  believes, knows, understands, notices, or feels.
+
+  speaker:view -> opponent:policy
+  The Speaker's evaluation or interpretation of the Opponent's
+  political course, programme, goals, principles, or position.
+
+  speaker:view -> opponent:actions
+  The Speaker's evaluation or interpretation of concrete actions
+  performed by the Opponent.
+
+  speaker:view -> opponent:motives
+  The Speaker's attribution of hidden or inferred motives to the
+  Opponent, including deception, concealment, material interest,
+  hypocrisy, strategic instrumentalization, impression management,
+  bad faith, or desire for an outcome.
+
+  speaker:view -> world:state
+  The external world represented through the Speaker's evaluation or
+  interpretation. This includes evaluated world states, consequences
+  attributed to causes, predictions, and hypothetical/counterfactual
+  states that cannot be verified at the time of speaking.
+
+  expert
+  A proposition attributed to an external person or organization whose
+  judgement, interpretation, warning, or authority is invoked as evidence.
+
+  study
+  Empirical, statistical, documentary, survey, report, forecast, or
+  model-based evidence explicitly attributed to a source. Numerical
+  information alone is not sufficient for this category.
+
+  speaker:rhetoric
+  A proposition whose primary function is rhetorical rather than
+  informational: for example, rhetorical questioning, irony, analogy,
+  deliberate exaggeration, rhetorical challenge, emphatic repetition,
+  metadiscursive highlighting, or audience-directed mockery.
+
+  DECISION RULES
+
+  Read the whole text before classifying individual spans. Interpret each
+  span in its local context and classify its central semantic content.
+
+  - Policy vs Actions:
+    Policy foregrounds a political course, position, proposal, demand,
+    intention, support, or rejection. Actions foreground concrete,
+    event-like acts or implementation. If genuinely unclear, prefer Policy.
+
+  - Mind vs Policy/Actions:
+    General ideas, concepts, judgements, and causal principles tend to
+    speaker:mind. Actor-specific political courses tend to Policy and
+    concrete acts or implementation tend to Actions. If an evaluated
+    participant can be interpreted in several ways, use the interpretation
+    foregrounded by the surrounding context. If genuinely unclear, prefer Policy/Actions.
+
+  - Policy vs Motives:
+    If the statement interprets the content or purpose of a policy,
+    prefer Policy. Use Motives when it attributes an inferred intention,
+    hidden interest, deception, hypocrisy, or bad faith to the actor.
+
+  - Actions vs Motives:
+    If an apparently concrete action is presented as concealment,
+    deception, hypocrisy, or another indication of an inferred intention,
+    prefer Motives.
+
+  - Mind vs World:
+    General causal or explanatory principles tend to speaker:mind.
+    Concrete actual, predicted, hypothetical, or counterfactual
+    consequences in the external world tend to World.
+
+  - World vs Policy/Actions:
+    If a proposition says that a policy/action causes a consequence in
+    the external world and the consequence is the focus, classify it as
+    World.
+
+  - world:state vs speaker:view -> world:state:
+    Clear evaluative language makes the proposition speaker:view ->
+    world:state. Without evaluation, use world:state if the proposition
+    can in principle be verified against an existing or past situation
+    or data. Predictions and hypothetical/counterfactual states are
+    speaker:view -> world:state.
+
+  - Viewed vs non-viewed:
+    Do not treat negative content alone as evaluation. A viewed category
+    requires evidence of evaluation or interpretation, such as evaluative
+    wording, loaded predicates, metaphors, intensifiers, derogatory
+    expressions, predictions, or inferred mental states/motives.
+    If evaluation is genuinely unclear, prefer the non-viewed category.
+
+  - Study vs World:
+    Use study only when the evidence is explicitly attributed to a study,
+    report, poll, dataset, forecast, model, calculation, or comparable
+    source. Numerical information without explicit source attribution is
+    World.
+
+  COMPLEX SPANS
+
+  Normally classify each provided span as one unit. If a span contains
+  several clauses that could receive different categories, temporarily
+  analyze the clauses separately and consider their relation to the
+  surrounding text. Then assign the single category that best represents
+  the central semantic content and function of the complete span.
+
+  The exact spans to annotate are:
+
   {{spans | join("\n")}}
+
+  OUTPUT
+
+  Return ONLY a valid JSON array of strings, in exactly the same order
+  as the spans above.
+
+  Example format:
+  ["label1", "label2", "label3"]
+
+  Use double quotation marks as required by JSON.
+  The number of labels MUST equal the number of spans.
+
+  Use ONLY labels from the inventory above.
+  Do not add explanations, comments, numbering, markdown, code fences,
+  or any other text.
+
   
-  As an answer, provide ONLY a list of labels (type string) from the first to the last span.
-  No comments, no lyrics, just one list.
