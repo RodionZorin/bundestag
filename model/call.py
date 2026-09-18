@@ -4,9 +4,11 @@ from jinja2 import Template
 import argparse
 import datetime as dt
 from openai import OpenAI
+from collections import Counter
 
 PATH = "../annotations/X_test.json"
 TEMPLATE = "./template.yaml"
+
 
 parser = argparse.ArgumentParser(
     description="Add your output file;" \
@@ -89,29 +91,51 @@ def check_model_response(model_response):
     print("The model generated the correct number of predictions in the correct format")
     return model_response
 
-def calculate_accuracy(paragraphs, predictions, gold_labels):
+def get_counts(paragraphs, predictions, gold_labels):
     """
-    Calculate accuracy, collect attempts and successes, and collect errors
+    Collect counts to furhter calculate metrics"
     """
+    tp = Counter()
+    fp = Counter()
+    fn = Counter()
     successes = 0
     failures = 0
     correct = {}
     errors = {}
-    for paragraph_index in paragraphs:
-        if paragraph_index in list(predictions.keys()):
-            zipped = list(enumerate (zip (predictions[paragraph_index], gold_labels[paragraph_index]) ) )
-            paragraph_correct = {}
-            paragraph_errors = {}
-            for pair_index, pair in zipped:
-                if pair[0] == pair[1]: #if prediction == gold_label
-                    successes += 1
-                    paragraph_correct[spans[paragraph_index][pair_index]] = f"prediction: {pair[0]}; gold_label: {pair[1]}"
-                else:
-                    failures += 1
-                    paragraph_errors[spans[paragraph_index][pair_index]] = f"prediction: {pair[0]}; gold_label: {pair[1]}"
-            correct[f"paragraph {paragraph_index}"] = paragraph_correct
-            errors[f"paragraph {paragraph_index}"] = paragraph_errors
 
+    for paragraph_index in paragraphs:
+            if paragraph_index in list(predictions.keys()):
+                zipped = list(enumerate (zip (predictions[paragraph_index], gold_labels[paragraph_index]) ) )
+                paragraph_correct = {}
+                paragraph_errors = {}
+                for pair_index, pair in zipped:
+                    pair_pred_gold = {}
+                    pair_pred_gold["prediction"] = pair[0]
+                    pair_pred_gold["gold_label"] = pair[1]
+                    if pair[0] == pair[1]: #if prediction == gold_label
+                        successes += 1
+                        tp[pair[0]] += 1
+                        paragraph_correct[spans[paragraph_index][pair_index]] = pair_pred_gold
+                    else:
+                        failures += 1
+                        fp[pair[0]] += 1
+                        paragraph_errors[spans[paragraph_index][pair_index]] = pair_pred_gold
+                correct[f"paragraph {paragraph_index}"] = paragraph_correct
+                errors[f"paragraph {paragraph_index}"] = paragraph_errors
+
+    for _, paragraph in errors.items():
+        paragraph_errors = paragraph.values()
+        for span in paragraph_errors:
+            gold_label = span["gold_label"]
+            fn[gold_label] += 1
+
+    return tp, fp, fn, successes, failures, correct, errors          
+
+def calculate_accuracy(successes, failures):
+    """
+    Calculate accuracy, collect attempts and successes, and collect errors
+    """
+    
     try:
         attempts = successes + failures
         accuracy = successes*100 / attempts
@@ -120,12 +144,12 @@ def calculate_accuracy(paragraphs, predictions, gold_labels):
         print("No correct answers by the model")
         accuracy = 0.0
 
-    return accuracy, attempts, successes, failures, correct, errors
+    return accuracy
 
 #take each paragraph
 for paragraph in data:
     paragraph_id = paragraph["id"]
-    if paragraph_id == 124:
+    if paragraph_id == 122:
         break
     paragraphs.append(paragraph_id)
     annotation = paragraph["annotations"]
@@ -172,9 +196,11 @@ for paragraph in data:
         #this action is needed to correctly zip predictions and gold labels later, see below
         #this also means that failed paragraphs do not influence accuracy, but they are yet introduced in the final report of the experiment
 
+#get counts to further calculate metrics
+tp, fp, fn, successes, failures, correct, errors = get_counts(paragraphs, predictions, gold_labels)
 
 #calculate accuracy
-accuracy, attempts, successes, failures, correct, errors = calculate_accuracy(paragraphs, predictions, gold_labels)
+accuracy = calculate_accuracy(successes, failures)
 
 print("Baseline Accuracy: 21.25") #the percentage of the most frequent label in the analyzed dataset
 
@@ -186,9 +212,12 @@ output = {
     "paragraphs": paragraphs,
     "accuracy": accuracy,
     "number of failed paragraphs": failed_paragpraphs,
-    "number of spans": attempts,
+    "number of spans": successes+failures,
     "number of successes": successes,
     "number of errors": failures,
+    "tp": tp,
+    "fp": fp,
+    "fn": fn,
     "correct": correct,
     "errors": errors
 }
