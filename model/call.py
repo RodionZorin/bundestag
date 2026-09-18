@@ -156,7 +156,7 @@ for paragraph in data:
 #calculate accuracy
 accuracy, attempts, count, errors = calculate_accuracy(paragraphs, predictions, gold_labels)
 
-print("Baseline Accuracy: 21.61") #the percentage of the most frequent label in the analyzed dataset
+print("Baseline Accuracy: 21.25") #the percentage of the most frequent label in the analyzed dataset
 
 #output format to write down in json
 date = str(dt.datetime.now())
