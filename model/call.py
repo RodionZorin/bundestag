@@ -128,7 +128,7 @@ for paragraph in data:
     paragraph_spans, paragraph_gold_labels = get_paragraph_spans_and_labels(annotation)
     spans[paragraph_id] = paragraph_spans
     gold_labels[paragraph_id] = paragraph_gold_labels
-    
+
     #create a context to fill in the gaps of the template
     context = create_context(paragraph_text, paragraph_spans)
 
@@ -137,21 +137,34 @@ for paragraph in data:
 
     #call an OpenAI model
     client = OpenAI()
-    response = call_ai(my_prompt)
-    model = response.model
-    model_response = response.output_text
-    
-    print("paragraph id: ", paragraph_id)
 
-    #make necessary checks of the correctness of the model response
-    model_response = check_model_response(model_response)
-    if model_response:
-        predictions[paragraph_id] = model_response #if the response passes the checks, add it to the model predictions
-    else:
+    #give 3 attempts for the model to generate a correct answer for the paragrpaph
+    tries = 3
+    model_response = False
+    while tries == 3 and model_response == False:
+        tries -= 1
+        response = call_ai(my_prompt)
+        model = response.model
+        model_response = response.output_text
+
+        print("paragraph id: ", paragraph_id)
+
+        #make necessary checks of the correctness of the model response
+        model_response = check_model_response(model_response)
+        if model_response:
+            predictions[paragraph_id] = model_response #if the response passes the checks, add it to the model predictions
+        else:
+            my_prompt = "You made a mistake." \
+            "You either failed to produce correct number of predictions/or the output format was incorrect." \
+            "Try again. Follow the instructions strictly" + my_prompt
+
+    #if the model fails after 3 attempts, just write it down and move to the next paragraph
+    if model_response == False:
         failed_paragpraphs += 1
         del gold_labels[paragraph_id] #if not, do not add predictions and delete also the corresponding gold labels added before
         #this action is needed to correctly zip predictions and gold labels later, see below
-        #this also means that failed paragraphs do not influence accuracy, but they are yet introduced in the final report of the experiment 
+        #this also means that failed paragraphs do not influence accuracy, but they are yet introduced in the final report of the experiment
+
 
 #calculate accuracy
 accuracy, attempts, count, errors = calculate_accuracy(paragraphs, predictions, gold_labels)
