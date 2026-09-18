@@ -93,33 +93,40 @@ def calculate_accuracy(paragraphs, predictions, gold_labels):
     """
     Calculate accuracy, collect attempts and successes, and collect errors
     """
-    attempts = 0
-    count = 0 #correct model predictions 
+    successes = 0
+    failures = 0
+    correct = {}
     errors = {}
     for paragraph_index in paragraphs:
         if paragraph_index in list(predictions.keys()):
             zipped = list(enumerate (zip (predictions[paragraph_index], gold_labels[paragraph_index]) ) )
+            paragraph_correct = {}
             paragraph_errors = {}
             for pair_index, pair in zipped:
-                attempts += 1
                 if pair[0] == pair[1]: #if prediction == gold_label
-                    count += 1
+                    successes += 1
+                    paragraph_correct[spans[paragraph_index][pair_index]] = f"prediction: {pair[0]}; gold_label: {pair[1]}"
                 else:
+                    failures += 1
                     paragraph_errors[spans[paragraph_index][pair_index]] = f"prediction: {pair[0]}; gold_label: {pair[1]}"
+            correct[f"paragraph {paragraph_index}"] = paragraph_correct
             errors[f"paragraph {paragraph_index}"] = paragraph_errors
 
     try:
-        accuracy = count*100/attempts
+        attempts = successes + failures
+        accuracy = successes*100 / attempts
         print("Accuracy: ", accuracy)
     except ZeroDivisionError:
         print("No correct answers by the model")
         accuracy = 0.0
 
-    return accuracy, attempts, count, errors
+    return accuracy, attempts, successes, failures, correct, errors
 
 #take each paragraph
 for paragraph in data:
     paragraph_id = paragraph["id"]
+    if paragraph_id == 124:
+        break
     paragraphs.append(paragraph_id)
     annotation = paragraph["annotations"]
     paragraph_text = paragraph["data"]["text"]
@@ -167,7 +174,7 @@ for paragraph in data:
 
 
 #calculate accuracy
-accuracy, attempts, count, errors = calculate_accuracy(paragraphs, predictions, gold_labels)
+accuracy, attempts, successes, failures, correct, errors = calculate_accuracy(paragraphs, predictions, gold_labels)
 
 print("Baseline Accuracy: 21.25") #the percentage of the most frequent label in the analyzed dataset
 
@@ -180,8 +187,9 @@ output = {
     "accuracy": accuracy,
     "number of failed paragraphs": failed_paragpraphs,
     "number of spans": attempts,
-    "number of errors": attempts - count,
-    "number of successes": count,
+    "number of successes": successes,
+    "number of errors": failures,
+    "correct": correct,
     "errors": errors
 }
 
