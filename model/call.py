@@ -88,13 +88,13 @@ def check_model_response(model_response):
         print("Oops! Invalid JSON")
         return False
 
-    if len(model_response) != len(paragraph_spans):
-        print("Oops! The model failed to generate correct number of predictions")
-        return False
-
     if type(model_response) != type(paragraph_spans):
         print("Oops! The model failed to produce a list of predictions")
         return False
+
+    if len(model_response) != len(paragraph_spans):
+            print("Oops! The model failed to generate correct number of predictions")
+            return False
 
     if not all(label in CATEGORIES for label in model_response):
         print("Oops! The model generated an unknown label")
