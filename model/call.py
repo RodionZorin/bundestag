@@ -8,7 +8,11 @@ from collections import Counter
 
 PATH = "../annotations/X_test.json"
 TEMPLATE = "./template.yaml"
-
+CATEGORIES = ["speaker:mind", "speaker:policy", "speaker:actions",
+              "speaker:experience", "opponent:policy", "opponent:actions",
+              "world:state", "speaker:view -> opponent:mind", "speaker:view -> opponent:policy",
+              "speaker:view -> opponent:actions", "speaker:view -> opponent:motives",
+              "speaker:view -> world:state", "expert", "study", "speaker:rhetoric"]
 
 parser = argparse.ArgumentParser(
     description="Add your output file;" \
@@ -131,7 +135,7 @@ def get_counts(paragraphs, predictions, gold_labels):
 
     return tp, fp, fn, successes, failures, correct, errors          
 
-def calculate_accuracy(successes, failures):
+def calculate_metrics(successes, failures, tp, fp, fn):
     """
     Calculate accuracy, collect attempts and successes, and collect errors
     """
@@ -143,8 +147,33 @@ def calculate_accuracy(successes, failures):
     except ZeroDivisionError:
         print("No correct answers by the model")
         accuracy = 0.0
+        precision = 0.0
+        recall = 0.0
+        f1 = 0.0
 
-    return accuracy
+    if accuracy > 0.0:
+        precisions = []
+        recalls = []
+    
+        for category in CATEGORIES:
+            try:
+                cat_precision = tp[category] / (tp[category] + fp[category])
+                precisions.append(cat_precision)
+            except ZeroDivisionError:
+                cat_precision = 0.0
+                precisions.append(cat_precision)
+            try:
+                cat_recall = tp[category] / (tp[category] + fn[category])
+                recalls.append(cat_recall)
+            except ZeroDivisionError:
+                cat_recall = 0.0
+                recalls.append(cat_recall)
+    
+        precision = sum(precisions) / len(CATEGORIES)
+        recall = sum(recalls) / len(CATEGORIES)
+        f1 = 2*precision*recall / (precision + recall)
+
+    return accuracy, precision, recall, f1
 
 #take each paragraph
 for paragraph in data:
@@ -200,7 +229,7 @@ for paragraph in data:
 tp, fp, fn, successes, failures, correct, errors = get_counts(paragraphs, predictions, gold_labels)
 
 #calculate accuracy
-accuracy = calculate_accuracy(successes, failures)
+accuracy, precision, recall, f1 = calculate_metrics(successes, failures, tp, fp, fn)
 
 print("Baseline Accuracy: 21.25") #the percentage of the most frequent label in the analyzed dataset
 
@@ -211,6 +240,9 @@ output = {
     "model": model,
     "paragraphs": paragraphs,
     "accuracy": accuracy,
+    "precision": precision,
+    "recall": recall,
+    "f1": f1,
     "number of failed paragraphs": failed_paragpraphs,
     "number of spans": successes+failures,
     "number of successes": successes,
