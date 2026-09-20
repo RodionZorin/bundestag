@@ -96,6 +96,10 @@ def check_model_response(model_response):
         print("Oops! The model failed to produce a list of predictions")
         return False
 
+    if not all(label in CATEGORIES for label in model_response):
+        print("Oops! The model generated an unknown label")
+        return False
+
     print("The model generated the correct number of predictions in the correct format")
     return model_response
 
