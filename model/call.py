@@ -81,9 +81,13 @@ def check_model_response(model_response):
     """
     Check if the model response has the correct form
     """
-    if type(model_response) == str:
+    try:
+        if type(model_response) == str:
             model_response = json.loads(model_response)
-    
+    except (json.JSONDecodeError, TypeError):
+        print("Oops! Invalid JSON")
+        return False
+
     if len(model_response) != len(paragraph_spans):
         print("Oops! The model failed to generate correct number of predictions")
         return False
