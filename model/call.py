@@ -145,7 +145,7 @@ def calculate_metrics(successes, failures, tp, fp, fn):
     
     try:
         attempts = successes + failures
-        accuracy = successes*100 / attempts
+        accuracy = successes / attempts
         print("Accuracy: ", accuracy)
     except ZeroDivisionError:
         print("No correct answers by the model")
@@ -229,7 +229,7 @@ tp, fp, fn, successes, failures, correct, errors = get_counts(paragraphs, predic
 #calculate accuracy
 accuracy, precision, recall, f1 = calculate_metrics(successes, failures, tp, fp, fn)
 
-print("Baseline Accuracy: 21.25") #the percentage of the most frequent label in the analyzed dataset
+print("Baseline Accuracy: 0.21") #the percentage of the most frequent label in the analyzed dataset
 
 #output format to write down in json
 date = str(dt.datetime.now())
