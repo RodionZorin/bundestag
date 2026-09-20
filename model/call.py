@@ -73,7 +73,7 @@ def call_ai(prompt):
     """
     response = client.responses.create(
         model="gpt-5.6-luna",
-        input=my_prompt,
+        input=prompt,
     )
     return response
 
