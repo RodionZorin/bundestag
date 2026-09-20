@@ -150,21 +150,29 @@ def calculate_metrics(successes, failures, tp, fp, fn):
     except ZeroDivisionError:
         print("No correct answers by the model")
         accuracy = 0.0
-        precision = 0.0
-        recall = 0.0
-        f1 = 0.0
+        macroavg_precision = 0.0
+        macroavg_recall = 0.0
+        macroavg_f1 = 0.0
 
     if accuracy > 0.0:
         precisions = []
         recalls = []
         f1 = []
         for category in CATEGORIES:
-            try:
-                cat_precision = tp[category] / (tp[category] + fp[category])
-                cat_recall = tp[category] / (tp[category] + fn[category])
-            except ZeroDivisionError:
+            if tp[category] + fn[category] == 0: #category absent from the gold data
                 continue
-            cat_f1 = 2*precision*recall / (precision + recall)
+            if tp[category] + fp[category] == 0:
+                cat_precision = 0.0
+            else:
+                cat_precision = tp[category] / (tp[category] + fp[category])
+
+            cat_recall = tp[category] / (tp[category] + fn[category])
+
+            if cat_precision + cat_recall == 0:
+                cat_f1 = 0.0
+            else:
+                cat_f1 = 2*cat_precision*cat_recall / (cat_precision + cat_recall)
+
             precisions.append(cat_precision)
             recalls.append(cat_recall)
             f1.append(cat_f1)
