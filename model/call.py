@@ -130,8 +130,9 @@ def get_counts(paragraphs, predictions, gold_labels):
     for _, paragraph in errors.items():
         paragraph_errors = paragraph.values()
         for span in paragraph_errors:
-            gold_label = span["gold_label"]
-            fn[gold_label] += 1
+            if span["gold_label"] in tp.keys() or span["gold_label"] in fp.keys():
+                gold_label = span["gold_label"]
+                fn[gold_label] += 1
 
     return tp, fp, fn, successes, failures, correct, errors          
 
@@ -160,17 +161,15 @@ def calculate_metrics(successes, failures, tp, fp, fn):
                 cat_precision = tp[category] / (tp[category] + fp[category])
                 precisions.append(cat_precision)
             except ZeroDivisionError:
-                cat_precision = 0.0
-                precisions.append(cat_precision)
+                pass
             try:
                 cat_recall = tp[category] / (tp[category] + fn[category])
                 recalls.append(cat_recall)
             except ZeroDivisionError:
-                cat_recall = 0.0
-                recalls.append(cat_recall)
+                pass
     
-        precision = sum(precisions) / len(CATEGORIES)
-        recall = sum(recalls) / len(CATEGORIES)
+        precision = sum(precisions) / len(precisions)
+        recall = sum(recalls) / len(recalls)
         f1 = 2*precision*recall / (precision + recall)
 
     return accuracy, precision, recall, f1
@@ -178,8 +177,6 @@ def calculate_metrics(successes, failures, tp, fp, fn):
 #take each paragraph
 for paragraph in data:
     paragraph_id = paragraph["id"]
-    if paragraph_id == 122:
-        break
     paragraphs.append(paragraph_id)
     annotation = paragraph["annotations"]
     paragraph_text = paragraph["data"]["text"]
