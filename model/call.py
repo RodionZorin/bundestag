@@ -72,7 +72,7 @@ def call_ai(prompt):
     Call ai with the prompt
     """
     response = client.responses.create(
-        model="gpt-5.6-luna",
+        model="gpt-5.6-terra",
         input=prompt,
     )
     return response
@@ -206,7 +206,7 @@ for paragraph in data:
     client = OpenAI()
 
     #give 3 attempts for the model to generate a correct answer for the paragrpaph
-    tries = 3
+    tries = 5
     model_response = False
     while tries > 0 and model_response == False:
         tries -= 1
@@ -221,9 +221,16 @@ for paragraph in data:
         if model_response:
             predictions[paragraph_id] = model_response #if the response passes the checks, add it to the model predictions
         else:
-            my_prompt = "You made a mistake." \
-            "You either failed to produce correct number of predictions/or the output format was incorrect." \
-            "Try again. Follow the instructions strictly" + my_prompt
+            my_prompt = my_prompt = (
+            f"IMPORTANT: Your previous response was invalid.\n"
+            f"There are exactly {len(paragraph_spans)} spans.\n"
+            f"Return exactly {len(paragraph_spans)} labels: one label per span, in the same order.\n"
+            f"Do not merge, omit, split, or add spans, including consecutive spans inside quotations.\n"
+            f"Your response must have this form:\n"
+            f'["label1", "label2", ..., "label{len(paragraph_spans)}"]\n'
+            f"Return ONLY the JSON array and nothing else.\n\n"
+            f"{my_prompt}"
+        )
 
     #if the model fails after 3 attempts, just write it down and move to the next paragraph
     if model_response == False:
