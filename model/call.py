@@ -198,7 +198,7 @@ for paragraph in data:
     #give 3 attempts for the model to generate a correct answer for the paragrpaph
     tries = 3
     model_response = False
-    while tries == 3 and model_response == False:
+    while tries > 0 and model_response == False:
         tries -= 1
         response = call_ai(my_prompt)
         model = response.model
