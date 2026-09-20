@@ -142,6 +142,10 @@ def calculate_metrics(successes, failures, tp, fp, fn):
     """
     Calculate accuracy, collect attempts and successes, and collect errors
     """
+
+    macroavg_precision = 0.0
+    macroavg_recall = 0.0
+    macroavg_f1 = 0.0
     
     try:
         attempts = successes + failures
@@ -150,9 +154,6 @@ def calculate_metrics(successes, failures, tp, fp, fn):
     except ZeroDivisionError:
         print("No correct answers by the model")
         accuracy = 0.0
-        macroavg_precision = 0.0
-        macroavg_recall = 0.0
-        macroavg_f1 = 0.0
 
     if accuracy > 0.0:
         precisions = []
