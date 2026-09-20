@@ -155,24 +155,23 @@ def calculate_metrics(successes, failures, tp, fp, fn):
     if accuracy > 0.0:
         precisions = []
         recalls = []
-    
+        f1 = []
         for category in CATEGORIES:
             try:
                 cat_precision = tp[category] / (tp[category] + fp[category])
-                precisions.append(cat_precision)
-            except ZeroDivisionError:
-                pass
-            try:
                 cat_recall = tp[category] / (tp[category] + fn[category])
-                recalls.append(cat_recall)
             except ZeroDivisionError:
-                pass
-    
-        precision = sum(precisions) / len(precisions)
-        recall = sum(recalls) / len(recalls)
-        f1 = 2*precision*recall / (precision + recall)
+                continue
+            cat_f1 = 2*precision*recall / (precision + recall)
+            precisions.append(cat_precision)
+            recalls.append(cat_recall)
+            f1.append(cat_f1)
 
-    return accuracy, precision, recall, f1
+        macroavg_precision = sum(precisions)/len(precisions)
+        macroavg_recall = sum(recalls)/len(recalls)
+        macroavg_f1 = sum(f1)/len(f1)
+
+    return accuracy, macroavg_precision, macroavg_recall, macroavg_f1
 
 #take each paragraph
 for paragraph in data:
