@@ -123,16 +123,10 @@ def get_counts(paragraphs, predictions, gold_labels):
                     else:
                         failures += 1
                         fp[pair[0]] += 1
+                        fn[pair[1]] += 1
                         paragraph_errors[spans[paragraph_index][pair_index]] = pair_pred_gold
                 correct[f"paragraph {paragraph_index}"] = paragraph_correct
                 errors[f"paragraph {paragraph_index}"] = paragraph_errors
-
-    for _, paragraph in errors.items():
-        paragraph_errors = paragraph.values()
-        for span in paragraph_errors:
-            if span["gold_label"] in tp.keys() or span["gold_label"] in fp.keys():
-                gold_label = span["gold_label"]
-                fn[gold_label] += 1
 
     return tp, fp, fn, successes, failures, correct, errors          
 
