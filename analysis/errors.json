@@ -1,0 +1,205 @@
+{
+  "model": "gpt-5.6-terra",
+  "errors": [
+    [
+      "speaker:view -> world:state vs speaker:mind",
+      14
+    ],
+    [
+      "world:state vs speaker:view -> world:state",
+      8
+    ],
+    [
+      "speaker:view -> opponent:policy vs speaker:mind",
+      7
+    ],
+    [
+      "speaker:policy vs speaker:mind",
+      7
+    ],
+    [
+      "speaker:view -> world:state vs speaker:view -> opponent:policy",
+      6
+    ],
+    [
+      "speaker:view -> opponent:policy vs speaker:view -> world:state",
+      4
+    ],
+    [
+      "speaker:view -> world:state vs world:state",
+      4
+    ],
+    [
+      "speaker:view -> opponent:actions vs speaker:view -> world:state",
+      4
+    ],
+    [
+      "speaker:view -> opponent:motives vs speaker:view -> opponent:actions",
+      4
+    ],
+    [
+      "speaker:view -> opponent:actions vs speaker:view -> opponent:mind",
+      3
+    ],
+    [
+      "speaker:view -> opponent:motives vs speaker:mind",
+      3
+    ],
+    [
+      "speaker:view -> opponent:policy vs speaker:view -> opponent:actions",
+      3
+    ],
+    [
+      "speaker:view -> opponent:actions vs world:state",
+      3
+    ],
+    [
+      "opponent:actions vs world:state",
+      2
+    ],
+    [
+      "speaker:view -> world:state vs speaker:view -> opponent:actions",
+      2
+    ],
+    [
+      "speaker:mind vs speaker:view -> world:state",
+      2
+    ],
+    [
+      "speaker:mind vs world:state",
+      2
+    ],
+    [
+      "speaker:rhetoric vs speaker:view -> world:state",
+      2
+    ],
+    [
+      "speaker:rhetoric vs opponent:policy",
+      2
+    ],
+    [
+      "speaker:policy vs speaker:actions",
+      2
+    ],
+    [
+      "speaker:view -> opponent:actions vs speaker:mind",
+      2
+    ],
+    [
+      "speaker:rhetoric vs speaker:mind",
+      2
+    ],
+    [
+      "world:state vs speaker:mind",
+      2
+    ],
+    [
+      "speaker:view -> opponent:policy vs speaker:view -> opponent:mind",
+      2
+    ],
+    [
+      "expert vs speaker:view -> opponent:actions",
+      2
+    ],
+    [
+      "expert vs speaker:view -> world:state",
+      2
+    ],
+    [
+      "world:state vs speaker:rhetoric",
+      1
+    ],
+    [
+      "opponent:actions vs speaker:view -> world:state",
+      1
+    ],
+    [
+      "world:state vs speaker:view -> opponent:mind",
+      1
+    ],
+    [
+      "speaker:view -> opponent:motives vs speaker:view -> opponent:mind",
+      1
+    ],
+    [
+      "speaker:view -> opponent:policy vs opponent:actions",
+      1
+    ],
+    [
+      "speaker:view -> opponent:mind vs opponent:actions",
+      1
+    ],
+    [
+      "opponent:actions vs opponent:policy",
+      1
+    ],
+    [
+      "speaker:view -> opponent:motives vs speaker:view -> opponent:policy",
+      1
+    ],
+    [
+      "speaker:policy vs speaker:view -> opponent:policy",
+      1
+    ],
+    [
+      "study vs world:state",
+      1
+    ],
+    [
+      "opponent:policy vs speaker:view -> opponent:mind",
+      1
+    ],
+    [
+      "expert vs study",
+      1
+    ],
+    [
+      "world:state vs speaker:view -> opponent:actions",
+      1
+    ],
+    [
+      "speaker:view -> world:state vs opponent:actions",
+      1
+    ],
+    [
+      "speaker:view -> opponent:motives vs speaker:view -> world:state",
+      1
+    ],
+    [
+      "speaker:view -> opponent:policy vs study",
+      1
+    ],
+    [
+      "speaker:view -> opponent:actions vs speaker:view -> opponent:policy",
+      1
+    ],
+    [
+      "opponent:actions vs speaker:mind",
+      1
+    ],
+    [
+      "speaker:mind vs speaker:view -> opponent:actions",
+      1
+    ],
+    [
+      "expert vs speaker:view -> opponent:policy",
+      1
+    ],
+    [
+      "opponent:policy vs speaker:view -> opponent:policy",
+      1
+    ],
+    [
+      "speaker:view -> opponent:mind vs speaker:mind",
+      1
+    ],
+    [
+      "expert vs speaker:mind",
+      1
+    ],
+    [
+      "speaker:rhetoric vs speaker:view -> opponent:actions",
+      1
+    ]
+  ]
+}

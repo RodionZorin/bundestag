@@ -1,0 +1,57 @@
+{
+  "model": "gpt-5.6-terra",
+  "correct": [
+    [
+      "speaker:view -> world:state",
+      23
+    ],
+    [
+      "world:state",
+      21
+    ],
+    [
+      "speaker:view -> opponent:policy",
+      16
+    ],
+    [
+      "speaker:policy",
+      11
+    ],
+    [
+      "speaker:mind",
+      11
+    ],
+    [
+      "speaker:view -> opponent:actions",
+      10
+    ],
+    [
+      "opponent:policy",
+      8
+    ],
+    [
+      "speaker:rhetoric",
+      7
+    ],
+    [
+      "speaker:view -> opponent:motives",
+      4
+    ],
+    [
+      "expert",
+      4
+    ],
+    [
+      "speaker:view -> opponent:mind",
+      3
+    ],
+    [
+      "speaker:actions",
+      1
+    ],
+    [
+      "opponent:actions",
+      1
+    ]
+  ]
+}
